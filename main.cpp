@@ -6,7 +6,7 @@ struct Cotxe {
     string nomPilot;
     string escuderia;
     int voltes;
-    enum Estat {EN_CURSA, ABANDONAT, FINALITZAT};
+    enum Estat {BOX, EN_CURSA, FINALITZAT};
 };
 
 int main(){}
