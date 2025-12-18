@@ -3,7 +3,10 @@ using namespace std;
 
 
 struct Cotxe {
-    enum Estat {ESPERANT,BOX,LLESTOS};
+    string nomPilot;
+    string escuderia;
+    int voltes;
+    enum Estat {EN_CURSA, ABANDONAT, FINALITZAT};
 };
 
 int main(){}
