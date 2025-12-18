@@ -2,4 +2,9 @@
 using namespace std;
 
 
+struct Cotxe {
+
+};
+
 int main(){}
+
