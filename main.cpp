@@ -125,6 +125,43 @@ public:
         return false;
     }
 
+    bool passPosition(const string& nomPilot) {
+        Node* actual = first;
+
+        while (actual != nullptr) {
+            if (actual->cotxe.nomPilot == nomPilot) {
+
+                if (actual->prev == nullptr)
+                    return false;
+
+                Node* anterior = actual->prev;
+                Node* abans = anterior->prev;
+                Node* despres = actual->next;
+
+                actual->prev = abans;
+                actual->next = anterior;
+
+                anterior->prev = actual;
+                anterior->next = despres;
+
+                if (despres != nullptr)
+                    despres->prev = anterior;
+
+                if (abans != nullptr)
+                    abans->next = actual;
+                else
+                    first = actual;
+
+                if (anterior == last)
+                    last = anterior;
+
+                return true;
+            }
+            actual = actual->next;
+        }
+        return false;
+    }
+
 };
 
 
@@ -170,7 +207,11 @@ public:
     };
     void display();
     // display al reves
-    void adelantar();
+
+    void adelantar(const string& nomPilot) {
+        classificacio.passPosition(nomPilot);
+    }
+
 };
 
 int main(){}
