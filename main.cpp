@@ -4,11 +4,10 @@ using namespace std;
 struct Cotxe {
     string nomPilot;
     string escuderia;
-    enum Estat {BOX, EN_CURSA, FINALITZAT, ABANDONAR} estat;
+    enum Estat {BOX, EN_CURSA, FINALITZAT, ABANDONAT} estat;
 };
 
 class List {
-
 private:
     struct Node {
         Cotxe cotxe;
@@ -27,6 +26,7 @@ public:
         last = nullptr;
         num_elems = 0;
     }
+
     ~List() {
         while (first != nullptr) {
             Node* temp = first;
@@ -43,13 +43,12 @@ public:
         return first;
     }
 
-
     void push_back(const Cotxe& c) {
         Node* newNode = new Node(c);
+
         if (last == nullptr) {
             first = last = newNode;
-        }
-        else {
+        } else {
             last->next = newNode;
             newNode->prev = last;
             last = newNode;
@@ -60,29 +59,29 @@ public:
     void insert(unsigned int position, const Cotxe& c) {
         if (position == 0) {
             Node* newNode = new Node(c);
+
             if (first == nullptr) {
                 first = last = newNode;
-            }
-            else {
+            } else {
                 newNode->next = first;
                 first->prev = newNode;
                 first = newNode;
             }
             num_elems++;
-        }
-        else if (position >= num_elems) {
+        } else if (position >= num_elems) {
             push_back(c);
-        }
-        else {
+        } else {
             Node* current = first;
             unsigned int index = 0;
             while (index < position) {
                 current = current->next;
                 index++;
             }
+
             Node* newNode = new Node(c);
             newNode->next = current;
             newNode->prev = current->prev;
+
             if (current->prev != nullptr) {
                 current->prev->next = newNode;
             }
@@ -96,15 +95,17 @@ public:
         while (actual != nullptr) {
             if (actual->cotxe.nomPilot == nomPilot) {
 
-                if (actual->prev != nullptr)
+                if (actual->prev != nullptr) {
                     actual->prev->next = actual->next;
-                else
+                } else {
                     first = actual->next;
+                }
 
-                if (actual->next != nullptr)
+                if (actual->next != nullptr) {
                     actual->next->prev = actual->prev;
-                else
+                } else {
                     last = actual->prev;
+                }
 
                 delete actual;
                 num_elems--;
@@ -121,8 +122,9 @@ public:
         while (actual != nullptr) {
             if (actual->cotxe.nomPilot == nomPilot) {
 
-                if (actual->prev == nullptr)
+                if (actual->prev == nullptr) {
                     return false;
+                }
 
                 Node* anterior = actual->prev;
                 Node* abans = anterior->prev;
@@ -134,16 +136,19 @@ public:
                 anterior->prev = actual;
                 anterior->next = despres;
 
-                if (despres != nullptr)
+                if (despres != nullptr) {
                     despres->prev = anterior;
+                }
 
-                if (abans != nullptr)
+                if (abans != nullptr) {
                     abans->next = actual;
-                else
+                } else {
                     first = actual;
+                }
 
-                if (anterior == last)
+                if (anterior == last) {
                     last = anterior;
+                }
 
                 return true;
             }
@@ -213,13 +218,7 @@ public:
         }
         return false;
     }
-
-
 };
-
-
-
-
 
 class Cursa {
 private:
@@ -244,7 +243,7 @@ public:
     }
 
     void canviEstat(const string& nomPilot, Cotxe::Estat nouEstat) {
-        if (nouEstat == Cotxe::ABANDONAR) {
+        if (nouEstat == Cotxe::ABANDONAT) {
             treureCotxe(nomPilot);
         } else {
             classificacio.changeStatus(nomPilot, nouEstat);
@@ -320,11 +319,10 @@ int main() {
 
     cout << "--- ABANDONAMENT ---" << endl;
     cout << "Pierre Gasly abandona" << endl;
-    cursa.canviEstat("Pierre Gasly", Cotxe::ABANDONAR);
+    cursa.canviEstat("Pierre Gasly", Cotxe::ABANDONAT);
     cout << endl;
 
     cout << "--- CLASSIFICACIO FINAL ---" << endl;
     cursa.display();
 
-    return 0;
 }
