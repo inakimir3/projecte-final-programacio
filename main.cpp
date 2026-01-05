@@ -40,6 +40,11 @@ public:
         return num_elems;
     }
 
+    Node* getFirst() {
+        return first;
+    }
+
+
     void push_back(const Cotxe& c) {
         Node* newNode = new Node(c);
         if (last == nullptr) {
@@ -127,7 +132,7 @@ public:
         }
 
     }
-    
+
     void canviEstat(Cotxe::Estat estat) {
         if (estat == Cotxe::ABANDONAR){
             treureCotxe();
