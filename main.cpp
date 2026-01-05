@@ -4,7 +4,6 @@ using namespace std;
 struct Cotxe {
     string nomPilot;
     string escuderia;
-    int voltes;
     enum Estat {BOX, EN_CURSA, FINALITZAT, ABANDONAR} estat;
 };
 
@@ -91,26 +90,6 @@ public:
             num_elems++;
         }
     }
-    void print() const {
-        Node* current = first;
-        int pos = 1;
-        while (current != nullptr) {
-            cout << pos << "- " << current->cotxe.nomPilot << endl;
-            current = current->next;
-            pos++;
-        }
-    }
-
-
-    void printReverse() const {
-        Node* current = last;
-        int pos = num_elems;
-        while (current != nullptr) {
-            cout << pos << "- " << current->cotxe.nomPilot << endl;
-            current = current->prev;
-            pos--;
-        }
-    }
 
     bool removeByPilot(const string& nomPilot) {
         Node* actual = first;
@@ -186,6 +165,55 @@ public:
         return false;
     }
 
+    string estatToString(Cotxe::Estat estat) const {
+        switch (estat) {
+            case Cotxe::BOX: return "BOX";
+            case Cotxe::EN_CURSA: return "EN CURSA";
+            case Cotxe::FINALITZAT: return "FINALITZAT";
+            default: return "ABANDONAT";
+        }
+    }
+
+    void print() const {
+        Node* current = first;
+        int pos = 1;
+
+        while (current != nullptr) {
+            cout << pos << "- "
+                 << current->cotxe.nomPilot
+                 << " | " << current->cotxe.escuderia
+                 << " (" << estatToString(current->cotxe.estat) << ")"
+                 << endl;
+            current = current->next;
+            pos++;
+        }
+    }
+
+    void printReverse() const {
+        Node* current = last;
+        int pos = num_elems;
+
+        while (current != nullptr) {
+            cout << pos << "- "
+                 << current->cotxe.nomPilot
+                 << " | " << current->cotxe.escuderia
+                 << " (" << estatToString(current->cotxe.estat) << ")"
+                 << endl;
+            current = current->prev;
+            pos--;
+        }
+    }
+
+    bool existeixPilot(const string& nomPilot) const {
+        Node* current = first;
+        while (current != nullptr) {
+            if (current->cotxe.nomPilot == nomPilot)
+                return true;
+            current = current->next;
+        }
+        return false;
+    }
+
 
 };
 
@@ -200,18 +228,20 @@ private:
 public:
     void afegirCotxe(const Cotxe& car) {
         if (classificacio.getNumElems() < 20) {
+            if (classificacio.existeixPilot(car.nomPilot)) {
+                cout << "Aquest pilot ja existeix" << endl;
+                return;
+            }
+
             classificacio.push_back(car);
         } else {
             cout << "No hi caben més cotxes a la cursa" << endl;
         }
     }
 
-
     void treureCotxe(const string& nomPilot) {
         classificacio.removeByPilot(nomPilot);
     }
-
-
 
     void canviEstat(const string& nomPilot, Cotxe::Estat nouEstat) {
         if (nouEstat == Cotxe::ABANDONAR) {
@@ -229,8 +259,6 @@ public:
         classificacio.printReverse();
     }
 
-
-
     void adelantar(const string& nomPilot) {
         classificacio.passPosition(nomPilot);
     }
@@ -240,13 +268,13 @@ public:
 int main() {
     Cursa cursa;
 
-    Cotxe c1 = {"Charles Leclerc", "Ferrari", 0, Cotxe::EN_CURSA};
-    Cotxe c2 = {"Max Verstappen", "RedBull", 0, Cotxe::EN_CURSA};
-    Cotxe c3 = {"George Russell", "Mercedes", 0, Cotxe::EN_CURSA};
-    Cotxe c4 = {"Lando Norris", "McLaren", 0, Cotxe::EN_CURSA};
-    Cotxe c5 = {"Fernando Alonso", "Aston Martin", 0, Cotxe::EN_CURSA};
-    Cotxe c6 = {"Carlos Sainz", "Williams", 0, Cotxe::EN_CURSA};
-    Cotxe c7 = {"Pierre Gasly", "Alpine", 0, Cotxe::EN_CURSA};
+    Cotxe c1 = {"Charles Leclerc", "Ferrari", Cotxe::EN_CURSA};
+    Cotxe c2 = {"Max Verstappen", "RedBull", Cotxe::EN_CURSA};
+    Cotxe c3 = {"George Russell", "Mercedes", Cotxe::EN_CURSA};
+    Cotxe c4 = {"Lando Norris", "McLaren", Cotxe::EN_CURSA};
+    Cotxe c5 = {"Fernando Alonso", "Aston Martin", Cotxe::EN_CURSA};
+    Cotxe c6 = {"Carlos Sainz", "Williams", Cotxe::EN_CURSA};
+    Cotxe c7 = {"Pierre Gasly", "Alpine", Cotxe::EN_CURSA};
 
 
     cursa.afegirCotxe(c1);
@@ -266,7 +294,7 @@ int main() {
     cursa.displayReverse();
     cout << endl;
 
-    cout << "=== AVANÇAR POSICIONS ===" << endl;
+    cout << "--- AVANÇAR POSICIONS ---" << endl;
     cout << "Carlos Sainz avança una posicio" << endl;
     cursa.adelantar("Carlos Sainz");
     cursa.display();
@@ -278,7 +306,7 @@ int main() {
     cursa.display();
     cout << endl;
 
-    cout << "=== CANVIS D'ESTAT ===" << endl;
+    cout << "--- CANVIS D'ESTAT ---" << endl;
     cout << "Fernando Alonso entra a BOX" << endl;
     cursa.canviEstat("Fernando Alonso", Cotxe::BOX);
 
@@ -290,12 +318,12 @@ int main() {
     cursa.display();
     cout << endl;
 
-    cout << "=== ABANDONAMENT ===" << endl;
+    cout << "--- ABANDONAMENT ---" << endl;
     cout << "Pierre Gasly abandona" << endl;
     cursa.canviEstat("Pierre Gasly", Cotxe::ABANDONAR);
     cout << endl;
 
-    cout << "=== CLASSIFICACIO FINAL ===" << endl;
+    cout << "--- CLASSIFICACIO FINAL ---" << endl;
     cursa.display();
 
     return 0;
