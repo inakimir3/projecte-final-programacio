@@ -172,6 +172,20 @@ public:
         return false;
     }
 
+    bool changeStatus(const string& nomPilot, Cotxe::Estat nouEstat) {
+        Node* actual = first;
+
+        while (actual != nullptr) {
+            if (actual->cotxe.nomPilot == nomPilot) {
+                actual->cotxe.estat = nouEstat;
+                return true;
+            }
+            actual = actual->next;
+        }
+        return false;
+    }
+
+
 };
 
 
@@ -209,12 +223,14 @@ public:
 
 
 
-    void canviEstat(Cotxe::Estat estat) {
-        if (estat == Cotxe::ABANDONAR){
-            treureCotxe();
+    void canviEstat(const string& nomPilot, Cotxe::Estat nouEstat) {
+        if (nouEstat == Cotxe::ABANDONAR) {
+            treureCotxe(nomPilot);
+        } else {
+            classificacio.changeStatus(nomPilot, nouEstat);
         }
-        
-    };
+    }
+
     void display() {
         classificacio.print();
     }
