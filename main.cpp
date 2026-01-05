@@ -100,6 +100,16 @@ public:
         std::cout << std::endl;
     };
 
+    void printReverse() const {
+        Node* current = last;
+        while (current != nullptr) {
+            cout << current->cotxe.nomPilot << " ";
+            current = current->prev;
+        }
+        cout << endl;
+    }
+
+
     bool removeByPilot(const string& nomPilot) {
         Node* actual = first;
 
@@ -205,8 +215,15 @@ public:
         }
         
     };
-    void display();
-    // display al reves
+    void display() {
+        classificacio.print();
+    }
+
+    void displayReverse() {
+        classificacio.printReverse();
+    }
+
+
 
     void adelantar(const string& nomPilot) {
         classificacio.passPosition(nomPilot);
