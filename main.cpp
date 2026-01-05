@@ -1,32 +1,26 @@
 #include <iostream>
 using namespace std;
 
-struct Cotxe {
-    string nomPilot;
-    string escuderia;
-    enum Estat {BOX, EN_CURSA, FINALITZAT, ABANDONAT} estat;
+struct Car {
+    string driverName;
+    string team;
+    enum Status { BOX, RACING, FINISHED, RETIRED } status;
 };
 
 class List {
 private:
     struct Node {
-        Cotxe cotxe;
+        Car car;
         Node* next;
         Node* prev;
-        Node(const Cotxe& c) : cotxe(c), next(nullptr), prev(nullptr) {}
+        Node(const Car& c) : car(c), next(nullptr), prev(nullptr) {}
     };
 
     Node* first = nullptr;
     Node* last = nullptr;
-    unsigned int num_elems = 0;
+    unsigned int numElements = 0;
 
 public:
-    List() {
-        first = nullptr;
-        last = nullptr;
-        num_elems = 0;
-    }
-
     ~List() {
         while (first != nullptr) {
             Node* temp = first;
@@ -35,294 +29,245 @@ public:
         }
     }
 
-    int getNumElems() {
-        return num_elems;
+    unsigned int getNumElements() const {
+        return numElements;
     }
 
-    Node* getFirst() {
-        return first;
-    }
+    void pushBack(const Car& car) {
+        Node* newNode = new Node(car);
 
-    void push_back(const Cotxe& c) {
-        Node* newNode = new Node(c);
-
-        if (last == nullptr) {
+        if (!last) {
             first = last = newNode;
         } else {
             last->next = newNode;
             newNode->prev = last;
             last = newNode;
         }
-        num_elems++;
+        numElements++;
     }
 
-    void insert(unsigned int position, const Cotxe& c) {
-        if (position == 0) {
-            Node* newNode = new Node(c);
-
-            if (first == nullptr) {
-                first = last = newNode;
-            } else {
-                newNode->next = first;
-                first->prev = newNode;
-                first = newNode;
-            }
-            num_elems++;
-        } else if (position >= num_elems) {
-            push_back(c);
-        } else {
-            Node* current = first;
-            unsigned int index = 0;
-            while (index < position) {
-                current = current->next;
-                index++;
-            }
-
-            Node* newNode = new Node(c);
-            newNode->next = current;
-            newNode->prev = current->prev;
-
-            if (current->prev != nullptr) {
-                current->prev->next = newNode;
-            }
-            current->prev = newNode;
-            num_elems++;
-        }
-    }
-
-    bool removeByPilot(const string& nomPilot) {
-        Node* actual = first;
-        while (actual != nullptr) {
-            if (actual->cotxe.nomPilot == nomPilot) {
-
-                if (actual->prev != nullptr) {
-                    actual->prev->next = actual->next;
-                } else {
-                    first = actual->next;
-                }
-
-                if (actual->next != nullptr) {
-                    actual->next->prev = actual->prev;
-                } else {
-                    last = actual->prev;
-                }
-
-                delete actual;
-                num_elems--;
+    bool pilotExists(const string& driverName) const {
+        Node* current = first;
+        while (current) {
+            if (current->car.driverName == driverName)
                 return true;
-            }
-            actual = actual->next;
+            current = current->next;
         }
         return false;
     }
 
-    bool passPosition(const string& nomPilot) {
-        Node* actual = first;
+    bool removeByDriver(const string& driverName) {
+        Node* current = first;
+        while (current) {
+            if (current->car.driverName == driverName) {
 
-        while (actual != nullptr) {
-            if (actual->cotxe.nomPilot == nomPilot) {
+                if (current->prev)
+                    current->prev->next = current->next;
+                else
+                    first = current->next;
 
-                if (actual->prev == nullptr) {
+                if (current->next)
+                    current->next->prev = current->prev;
+                else
+                    last = current->prev;
+
+                delete current;
+                numElements--;
+                return true;
+            }
+            current = current->next;
+        }
+        return false;
+    }
+
+    bool overtakePosition(const string& driverName) {
+        Node* current = first;
+
+        while (current) {
+            if (current->car.driverName == driverName) {
+
+                if (!current->prev)
                     return false;
-                }
 
-                Node* anterior = actual->prev;
-                Node* abans = anterior->prev;
-                Node* despres = actual->next;
+                Node* previous = current->prev;
+                Node* beforePrevious = previous->prev;
+                Node* afterCurrent = current->next;
 
-                actual->prev = abans;
-                actual->next = anterior;
+                current->prev = beforePrevious;
+                current->next = previous;
 
-                anterior->prev = actual;
-                anterior->next = despres;
+                previous->prev = current;
+                previous->next = afterCurrent;
 
-                if (despres != nullptr) {
-                    despres->prev = anterior;
-                }
+                if (afterCurrent)
+                    afterCurrent->prev = previous;
 
-                if (abans != nullptr) {
-                    abans->next = actual;
-                } else {
-                    first = actual;
-                }
+                if (beforePrevious)
+                    beforePrevious->next = current;
+                else
+                    first = current;
 
-                if (anterior == last) {
-                    last = anterior;
-                }
+                if (previous == last)
+                    last = previous;
 
                 return true;
             }
-            actual = actual->next;
+            current = current->next;
         }
         return false;
     }
 
-    bool changeStatus(const string& nomPilot, Cotxe::Estat nouEstat) {
-        Node* actual = first;
-
-        while (actual != nullptr) {
-            if (actual->cotxe.nomPilot == nomPilot) {
-                actual->cotxe.estat = nouEstat;
+    bool changeCarStatus(const string& driverName, Car::Status newStatus) {
+        Node* current = first;
+        while (current) {
+            if (current->car.driverName == driverName) {
+                current->car.status = newStatus;
                 return true;
             }
-            actual = actual->next;
+            current = current->next;
         }
         return false;
     }
 
-    string estatToString(Cotxe::Estat estat) const {
-        switch (estat) {
-            case Cotxe::BOX: return "BOX";
-            case Cotxe::EN_CURSA: return "EN CURSA";
-            case Cotxe::FINALITZAT: return "FINALITZAT";
+    string statusToString(Car::Status status) const {
+        switch (status) {
+            case Car::BOX: return "BOX";
+            case Car::RACING: return "EN CURSA";
+            case Car::FINISHED: return "FINALITZAT";
             default: return "ABANDONAT";
         }
     }
 
     void print() const {
         Node* current = first;
-        int pos = 1;
+        int position = 1;
 
-        while (current != nullptr) {
-            cout << pos << "- "
-                 << current->cotxe.nomPilot
-                 << " | " << current->cotxe.escuderia
-                 << " (" << estatToString(current->cotxe.estat) << ")"
+        while (current) {
+            cout << position << "- "
+                 << current->car.driverName
+                 << " | " << current->car.team
+                 << " (" << statusToString(current->car.status) << ")"
                  << endl;
             current = current->next;
-            pos++;
+            position++;
         }
     }
 
     void printReverse() const {
         Node* current = last;
-        int pos = num_elems;
+        int position = numElements;
 
-        while (current != nullptr) {
-            cout << pos << "- "
-                 << current->cotxe.nomPilot
-                 << " | " << current->cotxe.escuderia
-                 << " (" << estatToString(current->cotxe.estat) << ")"
+        while (current) {
+            cout << position << "- "
+                 << current->car.driverName
+                 << " | " << current->car.team
+                 << " (" << statusToString(current->car.status) << ")"
                  << endl;
             current = current->prev;
-            pos--;
+            position--;
         }
-    }
-
-    bool existeixPilot(const string& nomPilot) const {
-        Node* current = first;
-        while (current != nullptr) {
-            if (current->cotxe.nomPilot == nomPilot)
-                return true;
-            current = current->next;
-        }
-        return false;
     }
 };
 
-class Cursa {
+class Race {
 private:
-    string nomCircuit;
-    List classificacio;
+    string circuitName;
+    List classification;
+
 public:
-    void afegirCotxe(const Cotxe& car) {
-        if (classificacio.getNumElems() < 20) {
-            if (classificacio.existeixPilot(car.nomPilot)) {
-                cout << "Aquest pilot ja existeix" << endl;
-                return;
-            }
-
-            classificacio.push_back(car);
-        } else {
+    void addCar(const Car& car) {
+        if (classification.getNumElements() >= 20) {
             cout << "No hi caben més cotxes a la cursa" << endl;
+            return;
         }
-    }
 
-    void treureCotxe(const string& nomPilot) {
-        classificacio.removeByPilot(nomPilot);
-    }
-
-    void canviEstat(const string& nomPilot, Cotxe::Estat nouEstat) {
-        if (nouEstat == Cotxe::ABANDONAT) {
-            treureCotxe(nomPilot);
-        } else {
-            classificacio.changeStatus(nomPilot, nouEstat);
+        if (classification.pilotExists(car.driverName)) {
+            cout << "Aquest pilot ja existeix" << endl;
+            return;
         }
+
+        classification.pushBack(car);
     }
 
-    void display() {
-        classificacio.print();
+    void removeCar(const string& driverName) {
+        classification.removeByDriver(driverName);
     }
 
-    void displayReverse() {
-        classificacio.printReverse();
+    void changeStatus(const string& driverName, Car::Status status) {
+        if (status == Car::RETIRED)
+            removeCar(driverName);
+        else
+            classification.changeCarStatus(driverName, status);
     }
 
-    void adelantar(const string& nomPilot) {
-        classificacio.passPosition(nomPilot);
+    void overtake(const string& driverName) {
+        classification.overtakePosition(driverName);
     }
 
+    void printClassification() const {
+        classification.print();
+    }
+
+    void printReverseClassification() const {
+        classification.printReverse();
+    }
 };
 
 int main() {
-    Cursa cursa;
+    Race race;
 
-    Cotxe c1 = {"Charles Leclerc", "Ferrari", Cotxe::EN_CURSA};
-    Cotxe c2 = {"Max Verstappen", "RedBull", Cotxe::EN_CURSA};
-    Cotxe c3 = {"George Russell", "Mercedes", Cotxe::EN_CURSA};
-    Cotxe c4 = {"Lando Norris", "McLaren", Cotxe::EN_CURSA};
-    Cotxe c5 = {"Fernando Alonso", "Aston Martin", Cotxe::EN_CURSA};
-    Cotxe c6 = {"Carlos Sainz", "Williams", Cotxe::EN_CURSA};
-    Cotxe c7 = {"Pierre Gasly", "Alpine", Cotxe::EN_CURSA};
+    Car c1 = {"Charles Leclerc", "Ferrari", Car::RACING};
+    Car c2 = {"Max Verstappen", "RedBull", Car::RACING};
+    Car c3 = {"George Russell", "Mercedes", Car::RACING};
+    Car c4 = {"Lando Norris", "McLaren", Car::RACING};
+    Car c5 = {"Fernando Alonso", "Aston Martin", Car::RACING};
+    Car c6 = {"Carlos Sainz", "Williams", Car::RACING};
+    Car c7 = {"Pierre Gasly", "Alpine", Car::RACING};
 
-
-    cursa.afegirCotxe(c1);
-    cursa.afegirCotxe(c2);
-    cursa.afegirCotxe(c3);
-    cursa.afegirCotxe(c4);
-    cursa.afegirCotxe(c5);
-    cursa.afegirCotxe(c6);
-    cursa.afegirCotxe(c7);
-
+    race.addCar(c1);
+    race.addCar(c2);
+    race.addCar(c3);
+    race.addCar(c4);
+    race.addCar(c5);
+    race.addCar(c6);
+    race.addCar(c7);
 
     cout << "Classificacio inicial:" << endl;
-    cursa.display();
+    race.printClassification();
     cout << endl;
 
     cout << "Classificacio inversa:" << endl;
-    cursa.displayReverse();
+    race.printReverseClassification();
     cout << endl;
 
     cout << "--- AVANÇAR POSICIONS ---" << endl;
     cout << "Carlos Sainz avança una posicio" << endl;
-    cursa.adelantar("Carlos Sainz");
-    cursa.display();
+    race.overtake("Carlos Sainz");
+    race.printClassification();
     cout << endl;
 
-
     cout << "Carlos Sainz torna a avançar" << endl;
-    cursa.adelantar("Carlos Sainz");
-    cursa.display();
+    race.overtake("Carlos Sainz");
+    race.printClassification();
     cout << endl;
 
     cout << "--- CANVIS D'ESTAT ---" << endl;
     cout << "Fernando Alonso entra a BOX" << endl;
-    cursa.canviEstat("Fernando Alonso", Cotxe::BOX);
+    race.changeStatus("Fernando Alonso", Car::BOX);
 
     cout << "Charles Leclerc finalitza la cursa" << endl;
-    cursa.canviEstat("Charles Leclerc", Cotxe::FINALITZAT);
+    race.changeStatus("Charles Leclerc", Car::FINISHED);
     cout << endl;
 
     cout << "Classificacio despres dels canvis d'estat:" << endl;
-    cursa.display();
+    race.printClassification();
     cout << endl;
 
     cout << "--- ABANDONAMENT ---" << endl;
     cout << "Pierre Gasly abandona" << endl;
-    cursa.canviEstat("Pierre Gasly", Cotxe::ABANDONAT);
+    race.changeStatus("Pierre Gasly", Car::RETIRED);
     cout << endl;
 
     cout << "--- CLASSIFICACIO FINAL ---" << endl;
-    cursa.display();
-
+    race.printClassification();
 }
