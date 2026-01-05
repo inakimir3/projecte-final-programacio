@@ -100,6 +100,30 @@ public:
         std::cout << std::endl;
     };
 
+    bool removeByPilot(const string& nomPilot) {
+        Node* actual = first;
+
+        while (actual != nullptr) {
+            if (actual->cotxe.nomPilot == nomPilot) {
+
+                if (actual->prev != nullptr)
+                    actual->prev->next = actual->next;
+                else
+                    first = actual->next;
+
+                if (actual->next != nullptr)
+                    actual->next->prev = actual->prev;
+                else
+                    last = actual->prev;
+
+                delete actual;
+                num_elems--;
+                return true;
+            }
+            actual = actual->next;
+        }
+        return false;
+    }
 
 };
 
@@ -112,7 +136,6 @@ private:
     string nomCircuit;
     List classificacio;
 public:
-    void treureCotxe(); //
     void afegirCotxe() {
         if (classificacio.getNumElems() < 20) {
             Cotxe car;
@@ -132,6 +155,12 @@ public:
         }
 
     }
+
+    void treureCotxe(const string& nomPilot) {
+        classificacio.removeByPilot(nomPilot);
+    }
+
+
 
     void canviEstat(Cotxe::Estat estat) {
         if (estat == Cotxe::ABANDONAR){
