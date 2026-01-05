@@ -5,7 +5,7 @@ struct Cotxe {
     string nomPilot;
     string escuderia;
     int voltes;
-    enum Estat {BOX, EN_CURSA, FINALITZAT, ABANDONAR};
+    enum Estat {BOX, EN_CURSA, FINALITZAT, ABANDONAR} estat;
 };
 
 class List {
@@ -34,6 +34,10 @@ public:
             first = first->next;
             delete temp;
         }
+    }
+
+    int getNumElems() {
+        return num_elems;
     }
 
     void push_back(const Cotxe& c) {
@@ -103,7 +107,27 @@ private:
     string nomCircuit;
     List classificacio;
 public:
-    void afegirCotxe(); 
+    void afegirCotxe() {
+        if (classificacio.getNumElems() < 20) {
+            Cotxe car;
+
+            cout << "Nom del pilot: ";
+            cin >> car.nomPilot;
+
+            cout << "Escuderia: ";
+            cin >> car.escuderia;
+
+            car.voltes = 0;
+            car.estat = Cotxe::EN_CURSA;
+
+            classificacio.push_back(car);
+        } else {
+            cout << "No hi caben més cotxes a la cursa" << endl;
+        }
+
+    }
+
+
     void treureCotxe(); // abandonar, eliminar de la llista
     void canviEstat(Cotxe::Estat estat) {
         if (estat == Cotxe::ABANDONAR){
